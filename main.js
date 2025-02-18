@@ -88,7 +88,7 @@ async function getDashboardData(query) {
         return {
             city: destinationRes ? destinationRes.name : null,
             country: destinationRes ? destinationRes.country : null,
-            temperature: weatherRes?.temperature ?? null, //metodo alternativo per scrivere il ternario
+            temperature: weatherRes?.temperature ?? null, //metodo alternativo avanzato per scrivere il ternario
             weather: weatherRes ? weatherRes.weather_description : null,
             airport: airportRes ? airportRes.name : null
         }
