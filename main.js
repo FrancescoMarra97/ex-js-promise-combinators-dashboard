@@ -77,21 +77,68 @@ async function getDashboardData(query) {
         const airportsPromise = fetchJson(`https://boolean-spec-frontend.vercel.app/freetestapi/airports?search=${query}`)
 
         const promises = [destinationsPromise, weatersPromise, airportsPromise]
-        const [destinations, weathers, airports] = await Promise.allSettled(promises)
-        console.log([destinations, weathers, airports]);
+        const [destinationsResult, weathersResult, airportsResult] = await Promise.allSettled(promises)
 
-        const destinationRes = destinations.length > 0 ? destinations.find(destination => destination.name.toLowerCase() === query.toLowerCase()) : null
-        const weatherRes = weathers.length > 0 ? weathers.find(weather => weather.city.toLowerCase().includes(query.toLowerCase())) : null
-        const airportRes = airports.length > 0 ? airports.find(airport => airport.name.toLowerCase().includes(query.toLowerCase())) : null
+        console.log([destinationsResult, weathersResult, airportsResult])
+
+        const data = {}
+
+        if (destinationsResult.status === "rejected") {
+            console.error("Problema in destinations: ", destinationsResult.reason);
+            data.city = null
+            data.country = null
+        } else {
+            const destinationArray = destinationsResult.value[0]
+            let destination = destinationArray.find(destination => destination.name.toLowerCase() === query.toLowerCase())
+            // Se non troviamo una corrispondenza esatta, usiamo il primo elemento se presente
+            if (!destination && destinationArray.length > 0) {
+                destination = destArray[0];
+            }
+            data.city = destination?.name ?? null
+            data.country = destination?.country ?? null
+        }
+
+        if (weathersResult.status === "rejected") {
+            console.error("Problema in weathers: ", weathersResult.reason)
+            data.temperature = null
+            data.weather = null
+        } else {
+            const weatherArray = weathersResult.value[0]
+            let weather = weatherArray.find(weather => weather.city.toLowerCase().includes(query.toLowerCase()))
+            if (!weather && weatherArray.length > 0) {
+                weather = weatherArray[0];
+            }
+            data.temperature = weather?.temperature ?? null
+            data.weather = weather?.weather ?? null
+        }
+
+        if (airportsResult.status === "rejected") {
+            console.error("Problema in airports: ", airportsResult.reason)
+            data.airport = null
+        } else {
+            const airportArray = airportsResult.value[0]
+            let airport = airportArray.find(airport => airport.name.toLowerCase().includes(query.toLowerCase()))
+            if (!airport && airportArray.length > 0) {
+                airport = airportArray[0];
+            }
+            data.airport = airport?.name ?? null
+        }
+        /* 
+         const destinationRes = destinations.length > 0 ? destinations.find(destination => destination.name.toLowerCase() === query.toLowerCase()) : null
+         const weatherRes = weathers.length > 0 ? weathers.find(weather => weather.city.toLowerCase().includes(query.toLowerCase())) : null
+         const airportRes = airports.length > 0 ? airports.find(airport => airport.name.toLowerCase().includes(query.toLowerCase())) : null
+  */
 
 
-        return {
+        return data
+
+        /* { 
             city: destinationRes ? destinationRes.name : null,
             country: destinationRes ? destinationRes.country : null,
             temperature: weatherRes?.temperature ?? null, //metodo alternativo avanzato per scrivere il ternario
             weather: weatherRes ? weatherRes.weather_description : null,
             airport: airportRes ? airportRes.name : null
-        }
+        } */
 
     } catch (error) {
         throw new Error(`Errore nel recupero dei dati: ${error.message}`);
