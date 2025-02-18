@@ -51,35 +51,37 @@ Today there are 18 degrees and the weather is Partly cloudy.
 The main airport is London Heathrow Airport. */
 
 
+async function fetchJson(url) {
+    const res = await fetch(url)
+    const obj = await res.json()
+    return obj
+}
+
 async function getDashboardData(query) {
     try {
-        const [cityRes, weatherRes, airportRes] = await Promise.all([
-            fetch(`https://boolean-spec-frontend.vercel.app/freetestapi/destinations?search=${query}`),
-            fetch(`https://boolean-spec-frontend.vercel.app/freetestapi/weathers?search=${query}`),
-            fetch(`https://boolean-spec-frontend.vercel.app/freetestapi/airports?search=${query}`)
-        ])
+        const destinationsPromise = fetchJson(`https://boolean-spec-frontend.vercel.app/freetestapi/destinations?search=${query}`)
+        const weatersPromise = fetchJson(`https://boolean-spec-frontend.vercel.app/freetestapi/weathers?search=${query}`)
+        const airportsPromise = fetchJson(`https://boolean-spec-frontend.vercel.app/freetestapi/airports?search=${query}`)
 
-        const [city, weather, airport] = await Promise.all([
-            cityRes.json(),
-            weatherRes.json(),
-            airportRes.json()
-        ])
-        const firstCity = city[0];
-        const firstWeather = weather[0];
-        const firstAirport = airport[0];
+        const promises = [destinationsPromise, weatersPromise, airportsPromise]
+        const [destinations, weathers, airports] = await Promise.all(promises)
+        console.log([destinations, weathers, airports]);
 
-        const data = {
-            city: firstCity.name,
-            country: firstCity.country,
-            temperature: firstWeather.temperature,
-            weather: firstWeather.weather_description,
-            airport: firstAirport.name
+        const destination = destinations.find(destination => destination.name.toLowerCase() === query.toLowerCase())
+        const weather = weathers.find(weather => weather.city.toLowerCase().includes(query.toLowerCase()))
+        const airport = airports.find(airport => airport.name.toLowerCase().includes(query.toLowerCase()))
+
+        return {
+            city: destination.name,
+            country: destination.country,
+            temperature: weather.temperature,
+            weather: weather.weather_description,
+            airport: airport.name
         }
 
-        return data
-
     } catch (error) {
-        console.error('Error fetching data:', error);
+        throw new Error(`Errore nel recupero dei dati: ${error.message}`);
+
     }
 
 
