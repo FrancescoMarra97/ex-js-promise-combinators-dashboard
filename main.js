@@ -88,7 +88,7 @@ async function getDashboardData(query) {
         return {
             city: destinationRes ? destinationRes.name : null,
             country: destinationRes ? destinationRes.country : null,
-            temperature: weatherRes ? weatherRes.temperature : null,
+            temperature: weatherRes?.temperature ?? null, //metodo alternativo per scrivere il ternario
             weather: weatherRes ? weatherRes.weather_description : null,
             airport: airportRes ? airportRes.name : null
         }
@@ -104,14 +104,14 @@ async function getDashboardData(query) {
 getDashboardData('vienna')
     .then(data => {
         console.log('Dasboard data:', data);
-        if (data.city && data.country) {
+        if (data.city !== null && data.country !== null) {
             console.log(`${data.city} is in ${data.country}.`)
         }
-        if (data.temperature !== null && data.weather) {
+        if (data.temperature !== null && data.weather !== null) {
             console.log(`Today there are ${data.temperature} degrees and the weather is ${data.weather}.`);
 
         }
-        if (data.airport) {
+        if (data.airport !== null) {
             console.log(
                 `The main airport is ${data.airport}.`
             )
