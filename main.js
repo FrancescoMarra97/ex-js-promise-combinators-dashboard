@@ -88,7 +88,7 @@ async function getDashboardData(query) {
             data.city = null
             data.country = null
         } else {
-            const destinationArray = destinationsResult.value[0]
+            const destinationArray = destinationsResult.value
             let destination = destinationArray.find(destination => destination.name.toLowerCase() === query.toLowerCase())
             // Se non troviamo una corrispondenza esatta, usiamo il primo elemento se presente
             if (!destination && destinationArray.length > 0) {
@@ -103,7 +103,7 @@ async function getDashboardData(query) {
             data.temperature = null
             data.weather = null
         } else {
-            const weatherArray = weathersResult.value[0]
+            const weatherArray = weathersResult.value
             let weather = weatherArray.find(weather => weather.city.toLowerCase().includes(query.toLowerCase()))
             if (!weather && weatherArray.length > 0) {
                 weather = weatherArray[0];
@@ -116,7 +116,7 @@ async function getDashboardData(query) {
             console.error("Problema in airports: ", airportsResult.reason)
             data.airport = null
         } else {
-            const airportArray = airportsResult.value[0]
+            const airportArray = airportsResult.value
             let airport = airportArray.find(airport => airport.name.toLowerCase().includes(query.toLowerCase()))
             if (!airport && airportArray.length > 0) {
                 airport = airportArray[0];
